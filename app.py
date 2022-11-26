@@ -8,12 +8,11 @@ import pyttsx3
 import emoji
 import speech_recognition as sr
 from art import tprint
+
+
 fileName = "db.dat"
-
-
 hyfmt = "-"*40
-
-botname = "ROCKY"
+botname = "Simple Bot"
 
 
 def randomString(stringLength=10):
@@ -23,16 +22,9 @@ def randomString(stringLength=10):
 
 
 def speak(text: str):
-    try:
-        engine = pyttsx3.init()
-        engine.say(text)
-        engine.runAndWait()
-
-    finally:
-        pass
-        # os.remove(audioFileName)
-
-        # Get a reference to webcam #0 (the default one)
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
 
 
 def getUsers():
@@ -71,20 +63,6 @@ def deleteUser():
     print(hyfmt)
 
 
-def getUserEncodings():
-    users = getUsers()
-    return [user[1] for user in users]
-
-
-def findUserUsingEncodings(encodings):
-    users = getUsers()
-    for user in users:
-        # print(user)
-        if np.array_equal(user[1], encodings):
-            return user
-    return None
-
-
 def newUser():
     try:
         print(hyfmt)
@@ -115,6 +93,15 @@ def newUser():
 
     except Exception as e:
         print("Error: ", e)
+
+
+def findUserUsingEncodings(encodings):
+    users = getUsers()
+    for user in users:
+        # print(user)
+        if np.array_equal(user[1], encodings):
+            return user
+    return None
 
 
 def getUserInfo():
@@ -164,6 +151,11 @@ def getUserInfo():
     return face_names
 
 
+def getUserEncodings():
+    users = getUsers()
+    return [user[1] for user in users]
+
+
 def testFace():
     print(hyfmt)
     if getUsers() == []:
@@ -182,27 +174,21 @@ def testFace():
 def startBot():
     video_capture = cv2.VideoCapture(0)
     speak(f"{botname} is now online now")
-
     # Initialize some variables
     face_locations = []
     face_encodings = []
     face_names = []
     greetedUsers = []
-
     process_this_frame = True
-
     while True:
         # Grab a single frame of video
         ret, frame = video_capture.read()
-
         # Only process every other frame of video to save time
         if process_this_frame:
             # Resize frame of video to 1/4 size for faster face recognition processing
             small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
             rgb_small_frame = small_frame[:, :, ::-1]
-
             # Find all the faces and face encodings in the current frame of video
             face_locations = face_recognition.face_locations(rgb_small_frame)
             face_encodings = face_recognition.face_encodings(
@@ -217,11 +203,9 @@ def startBot():
                 face_distances = face_recognition.face_distance(
                     known_face_encodings, face_encoding)
                 best_match_index = np.argmin(face_distances)
-
                 if matches[best_match_index]:
                     name = findUserUsingEncodings(
                         known_face_encodings[best_match_index])[0]
-
                 if name != "unknown":
                     speak(f"Hello {name}")
                 name = "unknown"
